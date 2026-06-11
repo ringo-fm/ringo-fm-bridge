@@ -318,6 +318,15 @@
       ]
     },
     {
+      "section": "Transcript functions",
+      "name": "FMLanguageModelSessionGetTranscriptEntryCount",
+      "stability": "stable",
+      "returns": { "type": "int" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false }
+      ]
+    },
+    {
       "section": "GenerationSchema functions",
       "name": "FMGenerationSchemaCreate",
       "stability": "stable",

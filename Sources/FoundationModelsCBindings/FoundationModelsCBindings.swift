@@ -948,6 +948,20 @@ public func FMLanguageModelSessionGetTranscriptJSONString(
   }
 }
 
+/// Returns the number of entries in the session's transcript without
+/// requiring the caller to parse the full transcript JSON. Returns 0 on error
+/// or when the transcript is empty.
+@_cdecl("FMLanguageModelSessionGetTranscriptEntryCount")
+public func FMLanguageModelSessionGetTranscriptEntryCount(session: FMLanguageModelSessionRef) -> Int32 {
+  let sessionObj = Unmanaged<LanguageModelSession>.fromOpaque(session).takeUnretainedValue()
+  guard let json = try? JSONEncoder().encode(sessionObj.transcript),
+        let dict = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
+        let entries = dict["entries"] as? [Any] else {
+    return 0
+  }
+  return Int32(entries.count)
+}
+
 // MARK: - Task management
 
 @_cdecl("FMTaskCancel")

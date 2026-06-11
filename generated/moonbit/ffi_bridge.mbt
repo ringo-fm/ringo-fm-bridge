@@ -168,6 +168,11 @@ extern "c" fn FMLanguageModelSessionGetTranscriptJSONString(
 ) -> Bytes = "FMLanguageModelSessionGetTranscriptJSONString"
 
 ///|
+extern "c" fn FMLanguageModelSessionGetTranscriptEntryCount(
+  session : UInt
+) -> Int = "FMLanguageModelSessionGetTranscriptEntryCount"
+
+///|
 #borrow(name, description)
 extern "c" fn FMGenerationSchemaCreate(
   name : Bytes,

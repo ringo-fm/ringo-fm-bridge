@@ -231,6 +231,37 @@ import Synchronization
     print("Generated \(uniqueCount) unique IDs out of \(numberOfCalls) calls")
   }
 
+  @Test func testGeneratedContentGetPropertyValueAsInt() throws {
+    let json = "{\"count\":7,\"price\":3.14,\"label\":\"hello\"}"
+    var errCode: Int32 = 0
+    var errDesc: UnsafePointer<CChar>? = nil
+    let content = FMGeneratedContentCreateFromJSON(json, &errCode, &errDesc)
+    #expect(errCode == 0)
+    let contentRef = try #require(content)
+    defer { FMRelease(contentRef) }
+
+    var intVal: Int64 = 0
+    var fetchErr: Int32 = 0
+
+    // Integer property.
+    let ok1 = FMGeneratedContentGetPropertyValueAsInt(contentRef, "count", &intVal, &fetchErr)
+    #expect(ok1)
+    #expect(intVal == 7)
+
+    // Float property must fail (not an integer).
+    var unused: Int64 = 0
+    let ok2 = FMGeneratedContentGetPropertyValueAsInt(contentRef, "price", &unused, &fetchErr)
+    #expect(!ok2)
+
+    // String property must fail.
+    let ok3 = FMGeneratedContentGetPropertyValueAsInt(contentRef, "label", &unused, &fetchErr)
+    #expect(!ok3)
+
+    // Missing property must fail.
+    let ok4 = FMGeneratedContentGetPropertyValueAsInt(contentRef, "missing", &unused, &fetchErr)
+    #expect(!ok4)
+  }
+
   @Test func testGeneratedContentGetPropertyValueAsBool() throws {
     let json = "{\"active\":true,\"disabled\":false,\"score\":42}"
     var errCode: Int32 = 0

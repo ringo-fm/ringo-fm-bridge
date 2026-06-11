@@ -1390,6 +1390,37 @@ public func FMGeneratedContentGetPropertyValueAsBool(
   }
 }
 
+/// Returns the value of a specific integer property from the generated content as an Int64.
+///
+/// - Parameters:
+///   - content: The generated content.
+///   - propertyName: The name of the integer property to retrieve.
+///   - outValue: On success, receives the Int64 value of the property.
+///   - outErrorCode: On failure, receives an error code.
+///
+/// - Returns: true on success (outValue is populated), false on failure.
+@_cdecl("FMGeneratedContentGetPropertyValueAsInt")
+public func FMGeneratedContentGetPropertyValueAsInt(
+  content: FMGeneratedContentRef,
+  propertyName: UnsafePointer<CChar>,
+  outValue: UnsafeMutablePointer<Int64>?,
+  outErrorCode: UnsafeMutablePointer<Int32>?
+) -> Bool {
+  let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()
+  let name = String(cString: propertyName)
+  do {
+    let value: Int = try wrapper.content.value(forProperty: name)
+    outValue?.pointee = Int64(value)
+    return true
+  } catch let error as LanguageModelSession.GenerationError {
+    outErrorCode?.pointee = mapGenerationErrorToStatusCode(error)
+    return false
+  } catch {
+    outErrorCode?.pointee = StatusCode.unknownError.rawValue
+    return false
+  }
+}
+
 @_cdecl("FMGeneratedContentIsComplete")
 public func FMGeneratedContentIsComplete(content: FMGeneratedContentRef) -> Bool {
   let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()

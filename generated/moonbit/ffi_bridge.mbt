@@ -307,6 +307,15 @@ extern "c" fn FMGeneratedContentGetPropertyValueAsBool(
 ) -> Bool = "FMGeneratedContentGetPropertyValueAsBool"
 
 ///|
+#borrow(propertyName)
+extern "c" fn FMGeneratedContentGetPropertyValueAsInt(
+  content : UInt,
+  propertyName : Bytes,
+  outValue : UInt,
+  outErrorCode : UInt
+) -> Bool = "FMGeneratedContentGetPropertyValueAsInt"
+
+///|
 extern "c" fn FMGeneratedContentIsComplete(
   content : UInt
 ) -> Bool = "FMGeneratedContentIsComplete"

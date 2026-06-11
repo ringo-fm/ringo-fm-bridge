@@ -4,9 +4,9 @@ Shared Swift/C bridge for the Ringo Foundation Models SDKs.
 
 This repository is the source of truth for the C ABI used by:
 
-- `f4ah6o/rust-ringo-fm-sdk`
-- `f4ah6o/go-ringo-fm-sdk`
-- `f4ah6o/moonbit-ringo-fm-sdk`
+- `ringo-fm/rust-ringo-fm-sdk`
+- `ringo-fm/go-ringo-fm-sdk`
+- `ringo-fm/moonbit-ringo-fm-sdk`
 
 The bridge implementation is Swift, while the public ABI is C so Rust, Go, and
 MoonBit can call it through their normal FFI systems.

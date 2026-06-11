@@ -289,6 +289,13 @@ extern "c" fn FMGeneratedContentIsComplete(
 ) -> Bool = "FMGeneratedContentIsComplete"
 
 ///|
+#borrow(propertyName)
+extern "c" fn FMGeneratedContentHasProperty(
+  content : UInt,
+  propertyName : Bytes
+) -> Bool = "FMGeneratedContentHasProperty"
+
+///|
 #borrow(optionsJSON)
 extern "c" fn FMLanguageModelSessionRespondWithSchema(
   session : UInt,

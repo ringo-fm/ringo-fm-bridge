@@ -230,4 +230,21 @@ import Synchronization
     #expect(uniqueCount == numberOfCalls)
     print("Generated \(uniqueCount) unique IDs out of \(numberOfCalls) calls")
   }
+
+  @Test func testGeneratedContentHasProperty() throws {
+    let json = "{\"greeting\":\"hello\",\"count\":42}"
+    var errCode: Int32 = 0
+    var errDesc: UnsafePointer<CChar>? = nil
+    let content = FMGeneratedContentCreateFromJSON(json, &errCode, &errDesc)
+    #expect(errCode == 0)
+    let contentRef = try #require(content)
+    defer { FMRelease(contentRef) }
+
+    // Present properties must return true.
+    #expect(FMGeneratedContentHasProperty(contentRef, "greeting"))
+    #expect(FMGeneratedContentHasProperty(contentRef, "count"))
+    // Absent properties must return false.
+    #expect(!FMGeneratedContentHasProperty(contentRef, "nonexistent"))
+    #expect(!FMGeneratedContentHasProperty(contentRef, ""))
+  }
 }

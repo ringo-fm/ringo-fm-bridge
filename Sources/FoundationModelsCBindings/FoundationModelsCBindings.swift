@@ -1320,6 +1320,27 @@ public func FMGeneratedContentIsComplete(content: FMGeneratedContentRef) -> Bool
   return wrapper.content.isComplete
 }
 
+/// Returns whether the generated content has a top-level property with the given name.
+///
+/// Unlike FMGeneratedContentGetPropertyValue, this function never allocates an error
+/// string and returns false for any missing or unresolvable property rather than
+/// surfacing an error code. It is a cheap existence check: use it to guard calls to
+/// FMGeneratedContentGetPropertyValue when the schema is not fully known in advance.
+@_cdecl("FMGeneratedContentHasProperty")
+public func FMGeneratedContentHasProperty(
+  content: FMGeneratedContentRef,
+  propertyName: UnsafePointer<CChar>
+) -> Bool {
+  let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()
+  let name = String(cString: propertyName)
+  let json = wrapper.content.jsonString
+  guard let data = json.data(using: .utf8),
+        let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+    return false
+  }
+  return dict[name] != nil
+}
+
 // MARK: - Wrapper classes for C bindings
 
 private final class GenerationSchemaWrapper: @unchecked Sendable {

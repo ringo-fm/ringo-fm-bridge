@@ -496,6 +496,16 @@
       "params": [{ "name": "content", "type": "FMGeneratedContentRef", "nullable": false }]
     },
     {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentHasProperty",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "content", "type": "FMGeneratedContentRef", "nullable": false },
+        { "name": "propertyName", "type": "char", "pointer": true, "nullable": false, "const": true }
+      ]
+    },
+    {
       "section": "Structured generation session functions",
       "name": "FMLanguageModelSessionRespondWithSchema",
       "stability": "stable",

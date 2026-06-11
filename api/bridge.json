@@ -1,0 +1,578 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "abi": {
+    "name": "RingoFMBridge",
+    "version": "0.1.0",
+    "headerGuard": "FoundationModels_h",
+    "generatedNotice": "generated from api/bridge.json; do not edit",
+    "ownership": {
+      "objects": "All opaque object references returned from create/get/stream functions are +1 retained unless the function documentation says otherwise. Call FMRelease when finished.",
+      "strings": "All nullable char* return values are heap-allocated by the bridge. Call FMFreeString exactly once when finished.",
+      "borrowed": "Pointers passed as arguments are borrowed for the duration of the call only."
+    },
+    "errorHandling": {
+      "statusCode": "0 means success. Non-zero values map to GenerationErrorCode-compatible status codes when applicable, otherwise 255.",
+      "outErrorDescription": "When provided and an error occurs, the bridge may allocate a UTF-8 error string. Call FMFreeString exactly once when finished.",
+      "nullableReturn": "A nullable return value of NULL indicates failure when paired with non-zero outErrorCode, or absence when explicitly documented."
+    },
+    "iteratorLifetime": {
+      "streams": "Stream refs own the underlying Swift async stream box. Iterate functions retain stream state until completion or cancellation.",
+      "completion": "Text callbacks signal stream completion with status 0, content NULL, and length 0.",
+      "snapshots": "Structured stream callbacks return full cumulative JSON snapshots, not deltas."
+    },
+    "cancellation": {
+      "tasks": "FMTaskCancel requests cancellation of the underlying Swift task. Cancellation is cooperative.",
+      "streams": "Releasing a stream ref or cancelling its task stops future callbacks after the cancellation is observed."
+    }
+  },
+  "includes": ["stdbool.h", "stdint.h", "stddef.h"],
+  "types": [
+    { "kind": "opaque", "name": "FMTaskRef", "c": "const void *", "nonnull": true, "ownership": "owned" },
+    { "kind": "opaque", "name": "FMSystemLanguageModelRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMLanguageModelSessionRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMLanguageModelSessionResponseStreamRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMGenerationSchemaRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMGeneratedContentRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMGenerationSchemaPropertyRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMBridgedToolRef", "c": "const void *", "ownership": "owned" },
+    { "kind": "opaque", "name": "FMComposedPrompt", "c": "const void *", "nonnull": true, "ownership": "owned" }
+  ],
+  "callbacks": [
+    {
+      "name": "FMLanguageModelSessionResponseCallback",
+      "stability": "stable",
+      "returns": "void",
+      "attributes": ["swift_attr(\"@Sendable\")"],
+      "params": [
+        { "name": "status", "type": "int" },
+        { "name": "content", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "length", "type": "size_t" },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true }
+      ]
+    },
+    {
+      "name": "FMLanguageModelSessionStructuredResponseCallback",
+      "stability": "stable",
+      "returns": "void",
+      "attributes": ["swift_attr(\"@Sendable\")"],
+      "params": [
+        { "name": "status", "type": "int" },
+        { "name": "content", "type": "FMGeneratedContentRef", "nullable": true },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "FMSystemLanguageModelUnavailableReason",
+      "stability": "stable",
+      "values": [
+        { "name": "FMSystemLanguageModelUnavailableReasonAppleIntelligenceNotEnabled", "value": 0 },
+        { "name": "FMSystemLanguageModelUnavailableReasonDeviceNotEligible", "value": 1 },
+        { "name": "FMSystemLanguageModelUnavailableReasonModelNotReady", "value": 2 },
+        { "name": "FMSystemLanguageModelUnavailableReasonUnknown", "value": "0xFF" }
+      ]
+    },
+    {
+      "name": "FMSystemLanguageModelUseCase",
+      "stability": "stable",
+      "values": [
+        { "name": "FMSystemLanguageModelUseCaseGeneral", "value": 0 },
+        { "name": "FMSystemLanguageModelUseCaseContentTagging", "value": 1 }
+      ]
+    },
+    {
+      "name": "FMSystemLanguageModelGuardrails",
+      "stability": "stable",
+      "values": [
+        { "name": "FMSystemLanguageModelGuardrailsDefault", "value": 0 },
+        { "name": "FMSystemLanguageModelGuardrailsPermissiveContentTransformations", "value": 1 }
+      ]
+    },
+    {
+      "name": "FMComposedPromptAddImageError",
+      "stability": "stable",
+      "values": [
+        { "name": "FMComposedPromptAddImageErrorNone" },
+        { "name": "FMComposedPromptAddImageErrorUnsupported" },
+        { "name": "FMComposedPromptAddImageErrorUnknown" }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "section": "SystemLanguageModel",
+      "name": "FMSystemLanguageModelGetDefault",
+      "stability": "stable",
+      "returns": { "type": "FMSystemLanguageModelRef", "nullable": false, "ownership": "owned" },
+      "params": []
+    },
+    {
+      "section": "SystemLanguageModel",
+      "name": "FMSystemLanguageModelCreate",
+      "stability": "stable",
+      "returns": { "type": "FMSystemLanguageModelRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "useCase", "type": "FMSystemLanguageModelUseCase" },
+        { "name": "guardrails", "type": "FMSystemLanguageModelGuardrails" }
+      ]
+    },
+    {
+      "section": "SystemLanguageModel",
+      "name": "FMSystemLanguageModelIsAvailable",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "ref", "type": "FMSystemLanguageModelRef", "nullable": false },
+        { "name": "unavailableReason", "type": "FMSystemLanguageModelUnavailableReason", "pointer": true, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "LanguageModelSession",
+      "name": "FMLanguageModelSessionCreateDefault",
+      "stability": "stable",
+      "returns": { "type": "FMLanguageModelSessionRef", "nullable": false, "ownership": "owned" },
+      "params": []
+    },
+    {
+      "section": "LanguageModelSession",
+      "name": "FMLanguageModelSessionCreateFromSystemLanguageModel",
+      "stability": "stable",
+      "returns": { "type": "FMLanguageModelSessionRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "model", "type": "FMSystemLanguageModelRef", "nullable": true },
+        { "name": "instructions", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "tools", "type": "FMBridgedToolRef", "pointer": true, "nullable": true, "const": false, "array": true },
+        { "name": "toolCount", "type": "int" }
+      ]
+    },
+    {
+      "section": "Prompt construction",
+      "name": "FMComposedPromptInitialize",
+      "stability": "stable",
+      "returns": { "type": "FMComposedPrompt", "nullable": false, "ownership": "owned" },
+      "params": []
+    },
+    {
+      "section": "Prompt construction",
+      "name": "FMComposedPromptAddText",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "text", "type": "char", "pointer": true, "nullable": false, "const": true }
+      ]
+    },
+    {
+      "section": "Prompt construction",
+      "name": "FMComposedPromptAddImage",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "imagePath", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "error", "type": "FMComposedPromptAddImageError", "pointer": true, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "Prompt construction",
+      "name": "FMComposedPromptAddIdentifiedImage",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "imagePath", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "imageIdentifier", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "error", "type": "FMComposedPromptAddImageError", "pointer": true, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "Prompt construction",
+      "name": "FMComposedPromptAddAttachment",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "imagePath", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "label", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "error", "type": "FMComposedPromptAddImageError", "pointer": true, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionCreateFromTranscript",
+      "stability": "stable",
+      "returns": { "type": "FMLanguageModelSessionRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "transcriptSession", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "model", "type": "FMSystemLanguageModelRef", "nullable": true },
+        { "name": "tools", "type": "FMBridgedToolRef", "pointer": true, "nullable": true, "array": true },
+        { "name": "toolCount", "type": "int" }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionIsResponding",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [{ "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false }]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionReset",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [{ "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false }]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionRespond",
+      "stability": "stable",
+      "returns": { "type": "FMTaskRef", "ownership": "owned" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "optionsJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true },
+        { "name": "callback", "type": "FMLanguageModelSessionResponseCallback" }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionStreamResponse",
+      "stability": "stable",
+      "returns": { "type": "FMLanguageModelSessionResponseStreamRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "optionsJSON", "type": "char", "pointer": true, "nullable": true, "const": true }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionResponseStreamIterate",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "iterator": { "lifetime": "Callback-driven; completion is status 0 plus NULL content and length 0." },
+      "params": [
+        { "name": "stream", "type": "FMLanguageModelSessionResponseStreamRef", "nullable": false },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true },
+        { "name": "callback", "type": "FMLanguageModelSessionResponseCallback" }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionStreamResponseWithSchema",
+      "stability": "experimental",
+      "returns": { "type": "FMLanguageModelSessionResponseStreamRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "schema", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "includeSchemaInPrompt", "type": "bool" },
+        { "name": "optionsJSON", "type": "char", "pointer": true, "nullable": true, "const": true }
+      ]
+    },
+    {
+      "section": "Response functions",
+      "name": "FMLanguageModelSessionStructuredResponseStreamIterate",
+      "stability": "experimental",
+      "returns": { "type": "void" },
+      "iterator": { "lifetime": "Callback-driven; each callback is a full JSON snapshot, completion is status 0 plus NULL content and length 0." },
+      "params": [
+        { "name": "stream", "type": "FMLanguageModelSessionResponseStreamRef", "nullable": false },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true },
+        { "name": "callback", "type": "FMLanguageModelSessionResponseCallback" }
+      ]
+    },
+    {
+      "section": "Transcript functions",
+      "name": "FMTranscriptCreateFromJSONString",
+      "stability": "stable",
+      "returns": { "type": "FMLanguageModelSessionRef", "nullable": true, "ownership": "owned" },
+      "params": [
+        { "name": "jsonString", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "Transcript functions",
+      "name": "FMLanguageModelSessionGetTranscriptJSONString",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaCreate",
+      "stability": "stable",
+      "returns": { "type": "FMGenerationSchemaRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "name", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "description", "type": "char", "pointer": true, "nullable": true, "const": true }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyCreate",
+      "stability": "stable",
+      "returns": { "type": "FMGenerationSchemaPropertyRef", "nullable": false, "ownership": "owned" },
+      "params": [
+        { "name": "name", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "description", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "typeName", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "isOptional", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddAnyOfGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "anyOf", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": false, "const": true, "array": true },
+        { "name": "choiceCount", "type": "int" },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddCountGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "count", "type": "int" },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddMaximumGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "maximum", "type": "double" },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddMinimumGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "minimum", "type": "double" },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddMinItemsGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "minItems", "type": "int" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddMaxItemsGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "maxItems", "type": "int" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddRangeGuide",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "minValue", "type": "double" },
+        { "name": "maxValue", "type": "double" },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaPropertyAddRegex",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false },
+        { "name": "pattern", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "wrapped", "type": "bool" }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaAddProperty",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "schema", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "property", "type": "FMGenerationSchemaPropertyRef", "nullable": false }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaAddReferenceSchema",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "schema", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "referenceSchema", "type": "FMGenerationSchemaRef", "nullable": false }
+      ]
+    },
+    {
+      "section": "GenerationSchema functions",
+      "name": "FMGenerationSchemaGetJSONString",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "schema", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentCreateFromJSON",
+      "stability": "stable",
+      "returns": { "type": "FMGeneratedContentRef", "nullable": true, "ownership": "owned" },
+      "params": [
+        { "name": "jsonString", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentGetJSONString",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [{ "name": "content", "type": "FMGeneratedContentRef", "nullable": false }]
+    },
+    {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentGetPropertyValue",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "content", "type": "FMGeneratedContentRef", "nullable": false },
+        { "name": "propertyName", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentIsComplete",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [{ "name": "content", "type": "FMGeneratedContentRef", "nullable": false }]
+    },
+    {
+      "section": "Structured generation session functions",
+      "name": "FMLanguageModelSessionRespondWithSchema",
+      "stability": "stable",
+      "returns": { "type": "FMTaskRef", "ownership": "owned" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "schema", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "optionsJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true },
+        { "name": "callback", "type": "FMLanguageModelSessionStructuredResponseCallback" }
+      ]
+    },
+    {
+      "section": "Structured generation session functions",
+      "name": "FMLanguageModelSessionRespondWithSchemaFromJSON",
+      "stability": "stable",
+      "returns": { "type": "FMTaskRef", "ownership": "owned" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false },
+        { "name": "schemaJSONString", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "optionsJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "userInfo", "type": "void", "pointer": true, "nullable": true },
+        { "name": "callback", "type": "FMLanguageModelSessionStructuredResponseCallback" }
+      ]
+    },
+    {
+      "section": "Tools",
+      "name": "FMBridgedToolCreate",
+      "stability": "stable",
+      "returns": { "type": "FMBridgedToolRef", "nullable": true, "ownership": "owned" },
+      "params": [
+        { "name": "name", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "description", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "parameters", "type": "FMGenerationSchemaRef", "nullable": false },
+        { "name": "callable", "type": "void", "callbackPointer": true, "nullable": false, "signature": [{ "type": "FMGeneratedContentRef", "nullable": false }, { "type": "unsigned int" }], "attributes": ["swift_attr(\"@Sendable\")"] },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "Tools",
+      "name": "FMBridgedToolFinishCall",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "tool", "type": "FMBridgedToolRef", "nullable": false },
+        { "name": "callId", "type": "unsigned int" },
+        { "name": "output", "type": "char", "pointer": true, "nullable": false, "const": true }
+      ]
+    },
+    {
+      "section": "Memory management",
+      "name": "FMTaskCancel",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "cancellation": "Requests cooperative cancellation of the task.",
+      "params": [{ "name": "task", "type": "FMTaskRef" }]
+    },
+    {
+      "section": "Memory management",
+      "name": "FMRetain",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [{ "name": "object", "type": "void", "pointer": true, "nullable": false, "const": true }]
+    },
+    {
+      "section": "Memory management",
+      "name": "FMRelease",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [{ "name": "object", "type": "void", "pointer": true, "nullable": false, "const": true }]
+    },
+    {
+      "section": "Memory management",
+      "name": "FMFreeString",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [{ "name": "str", "type": "char", "pointer": true, "nullable": true }]
+    }
+  ],
+  "future": [
+    {
+      "section": "Document extraction",
+      "stability": "future",
+      "summary": "PDF/OCR/table extraction will be added after the generated ABI baseline is stable."
+    }
+  ]
+}

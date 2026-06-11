@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate bridge files
+        run: python3 tools/generate-bridge/generate.py
+      - name: Check generated files are current
+        run: git diff --exit-code
+      - name: Build
+        run: swift build -c release
+      - name: Test
+        run: swift test

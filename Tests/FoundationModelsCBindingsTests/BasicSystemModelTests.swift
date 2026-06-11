@@ -231,6 +231,25 @@ import Synchronization
     print("Generated \(uniqueCount) unique IDs out of \(numberOfCalls) calls")
   }
 
+  @Test func testComposedPromptGetTextContent() throws {
+    let prompt = FMComposedPromptInitialize()
+    defer { FMRelease(prompt) }
+
+    // Empty prompt must return an empty string, not NULL.
+    let emptyPtr = FMComposedPromptGetTextContent(prompt)
+    let emptyRef = try #require(emptyPtr)
+    defer { FMFreeString(emptyPtr) }
+    #expect(String(cString: emptyRef) == "")
+
+    // After adding text, the content must match.
+    FMComposedPromptAddText(prompt, "Hello, ")
+    FMComposedPromptAddText(prompt, "world!")
+    let textPtr = FMComposedPromptGetTextContent(prompt)
+    let textRef = try #require(textPtr)
+    defer { FMFreeString(textPtr) }
+    #expect(String(cString: textRef) == "Hello, world!")
+  }
+
   @Test func testGeneratedContentGetPropertyValueAsInt() throws {
     let json = "{\"count\":7,\"price\":3.14,\"label\":\"hello\"}"
     var errCode: Int32 = 0

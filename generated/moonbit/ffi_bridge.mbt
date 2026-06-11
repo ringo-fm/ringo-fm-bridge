@@ -59,6 +59,11 @@ extern "c" fn FMComposedPromptAddText(
 ) = "FMComposedPromptAddText"
 
 ///|
+extern "c" fn FMComposedPromptGetTextContent(
+  composedPrompt : UInt
+) -> Bytes = "FMComposedPromptGetTextContent"
+
+///|
 #borrow(imagePath)
 extern "c" fn FMComposedPromptAddImage(
   composedPrompt : UInt,

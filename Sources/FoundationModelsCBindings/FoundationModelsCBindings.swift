@@ -61,6 +61,20 @@ public func FMComposedPromptAddText(composedPrompt: FMComposedPrompt, text: Unsa
   composedPrompt.add(text: textToAddToPrompt)
 }
 
+/// Returns a heap-allocated string containing the concatenation of all text
+/// components that have been added to the prompt via FMComposedPromptAddText.
+/// Non-text components (images, attachments) are skipped. Returns an empty
+/// string when no text components are present, never NULL.
+///
+/// - Important: The returned string is allocated with malloc and MUST be freed
+///              by calling FMFreeString() when no longer needed.
+@_cdecl("FMComposedPromptGetTextContent")
+public func FMComposedPromptGetTextContent(composedPrompt: FMComposedPrompt) -> UnsafeMutablePointer<CChar>? {
+  let prompt = Unmanaged<ComposedPrompt>.fromOpaque(composedPrompt).takeUnretainedValue()
+  let text = prompt.components.compactMap { $0 as? String }.joined()
+  return text.withCString { UnsafeMutablePointer(strdup($0)) }
+}
+
 @_cdecl("FMComposedPromptAddAttachment")
 public func FMComposedPromptAddAttachment(
   composedPrompt: FMComposedPrompt,

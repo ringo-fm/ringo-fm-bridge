@@ -165,6 +165,15 @@
     },
     {
       "section": "Prompt construction",
+      "name": "FMComposedPromptGetTextContent",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "composedPrompt", "type": "FMComposedPrompt", "nullable": false }
+      ]
+    },
+    {
+      "section": "Prompt construction",
       "name": "FMComposedPromptAddImage",
       "stability": "stable",
       "returns": { "type": "bool" },

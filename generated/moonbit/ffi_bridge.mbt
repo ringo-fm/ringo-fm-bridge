@@ -103,6 +103,13 @@ extern "c" fn FMLanguageModelSessionReset(
 ) = "FMLanguageModelSessionReset"
 
 ///|
+#borrow(promptPrefix)
+extern "c" fn FMLanguageModelSessionPrewarm(
+  session : UInt,
+  promptPrefix : Bytes
+) = "FMLanguageModelSessionPrewarm"
+
+///|
 #borrow(optionsJSON)
 extern "c" fn FMLanguageModelSessionRespond(
   session : UInt,

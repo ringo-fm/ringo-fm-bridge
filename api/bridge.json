@@ -226,6 +226,16 @@
     },
     {
       "section": "Response functions",
+      "name": "FMLanguageModelSessionPrewarm",
+      "stability": "stable",
+      "returns": { "type": "void" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "promptPrefix", "type": "char", "pointer": true, "nullable": true, "const": true }
+      ]
+    },
+    {
+      "section": "Response functions",
       "name": "FMLanguageModelSessionRespond",
       "stability": "stable",
       "returns": { "type": "FMTaskRef", "ownership": "owned" },

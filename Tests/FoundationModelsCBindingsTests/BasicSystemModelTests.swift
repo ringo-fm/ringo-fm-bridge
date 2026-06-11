@@ -249,7 +249,7 @@ import Synchronization
     {"entries":[{"role":"user","parts":[{"kind":"text","content":"Hello"}]},{"role":"model","parts":[{"kind":"text","content":"Hi"}]}]}
     """
     var errCode: Int32 = 0
-    var errDesc: UnsafePointer<CChar>? = nil
+    var errDesc: UnsafeMutablePointer<CChar>? = nil
     let loaded = FMTranscriptCreateFromJSONString(transcriptJSON, &errCode, &errDesc)
     guard let loaded else {
       // If the transcript format doesn't match the FM ABI on this system, skip

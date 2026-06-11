@@ -511,6 +511,18 @@
     },
     {
       "section": "GeneratedContent",
+      "name": "FMGeneratedContentGetPropertyValueAsBool",
+      "stability": "stable",
+      "returns": { "type": "bool" },
+      "params": [
+        { "name": "content", "type": "FMGeneratedContentRef", "nullable": false },
+        { "name": "propertyName", "type": "char", "pointer": true, "nullable": false, "const": true },
+        { "name": "outValue", "type": "bool", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
+      "section": "GeneratedContent",
       "name": "FMGeneratedContentIsComplete",
       "stability": "stable",
       "returns": { "type": "bool" },

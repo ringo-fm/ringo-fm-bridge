@@ -1359,6 +1359,37 @@ public func FMGeneratedContentGetPropertyValueAsDouble(
   }
 }
 
+/// Returns the value of a specific boolean property from the generated content.
+///
+/// - Parameters:
+///   - content: The generated content.
+///   - propertyName: The name of the boolean property to retrieve.
+///   - outValue: On success, receives the Bool value of the property.
+///   - outErrorCode: On failure, receives an error code.
+///
+/// - Returns: true on success (outValue is populated), false on failure.
+@_cdecl("FMGeneratedContentGetPropertyValueAsBool")
+public func FMGeneratedContentGetPropertyValueAsBool(
+  content: FMGeneratedContentRef,
+  propertyName: UnsafePointer<CChar>,
+  outValue: UnsafeMutablePointer<Bool>?,
+  outErrorCode: UnsafeMutablePointer<Int32>?
+) -> Bool {
+  let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()
+  let name = String(cString: propertyName)
+  do {
+    let value: Bool = try wrapper.content.value(forProperty: name)
+    outValue?.pointee = value
+    return true
+  } catch let error as LanguageModelSession.GenerationError {
+    outErrorCode?.pointee = mapGenerationErrorToStatusCode(error)
+    return false
+  } catch {
+    outErrorCode?.pointee = StatusCode.unknownError.rawValue
+    return false
+  }
+}
+
 @_cdecl("FMGeneratedContentIsComplete")
 public func FMGeneratedContentIsComplete(content: FMGeneratedContentRef) -> Bool {
   let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()

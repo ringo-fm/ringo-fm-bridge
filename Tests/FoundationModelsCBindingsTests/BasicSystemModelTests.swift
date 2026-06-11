@@ -231,6 +231,38 @@ import Synchronization
     print("Generated \(uniqueCount) unique IDs out of \(numberOfCalls) calls")
   }
 
+  @Test func testGeneratedContentGetPropertyValueAsDouble() throws {
+    let json = "{\"price\":3.14,\"count\":42,\"label\":\"hello\"}"
+    var errCode: Int32 = 0
+    var errDesc: UnsafePointer<CChar>? = nil
+    let content = FMGeneratedContentCreateFromJSON(json, &errCode, &errDesc)
+    #expect(errCode == 0)
+    let contentRef = try #require(content)
+    defer { FMRelease(contentRef) }
+
+    // Float property.
+    var doubleVal: Double = 0
+    var fetchErr: Int32 = 0
+    let ok1 = FMGeneratedContentGetPropertyValueAsDouble(contentRef, "price", &doubleVal, &fetchErr)
+    #expect(ok1)
+    #expect(abs(doubleVal - 3.14) < 1e-9)
+
+    // Integer property coerced to Double.
+    var intAsDouble: Double = 0
+    let ok2 = FMGeneratedContentGetPropertyValueAsDouble(contentRef, "count", &intAsDouble, &fetchErr)
+    #expect(ok2)
+    #expect(intAsDouble == 42.0)
+
+    // String property must fail gracefully.
+    var unused: Double = 0
+    let ok3 = FMGeneratedContentGetPropertyValueAsDouble(contentRef, "label", &unused, &fetchErr)
+    #expect(!ok3)
+
+    // Missing property must fail gracefully.
+    let ok4 = FMGeneratedContentGetPropertyValueAsDouble(contentRef, "missing", &unused, &fetchErr)
+    #expect(!ok4)
+  }
+
   @Test func testGetTranscriptEntryCount() throws {
     let model = FMSystemLanguageModelGetDefault()
     let session = FMLanguageModelSessionCreateFromSystemLanguageModel(model, nil, nil, 0)

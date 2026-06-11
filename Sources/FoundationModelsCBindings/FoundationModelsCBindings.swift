@@ -1328,6 +1328,37 @@ public func FMGeneratedContentGetPropertyValue(
   }
 }
 
+/// Returns the value of a specific numeric property from the generated content as a Double.
+///
+/// - Parameters:
+///   - content: The generated content.
+///   - propertyName: The name of the numeric property to retrieve.
+///   - outValue: On success, receives the Double value of the property.
+///   - outErrorCode: On failure, receives an error code.
+///
+/// - Returns: true on success (outValue is populated), false on failure.
+@_cdecl("FMGeneratedContentGetPropertyValueAsDouble")
+public func FMGeneratedContentGetPropertyValueAsDouble(
+  content: FMGeneratedContentRef,
+  propertyName: UnsafePointer<CChar>,
+  outValue: UnsafeMutablePointer<Double>?,
+  outErrorCode: UnsafeMutablePointer<Int32>?
+) -> Bool {
+  let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()
+  let name = String(cString: propertyName)
+  do {
+    let value: Double = try wrapper.content.value(forProperty: name)
+    outValue?.pointee = value
+    return true
+  } catch let error as LanguageModelSession.GenerationError {
+    outErrorCode?.pointee = mapGenerationErrorToStatusCode(error)
+    return false
+  } catch {
+    outErrorCode?.pointee = StatusCode.unknownError.rawValue
+    return false
+  }
+}
+
 @_cdecl("FMGeneratedContentIsComplete")
 public func FMGeneratedContentIsComplete(content: FMGeneratedContentRef) -> Bool {
   let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()

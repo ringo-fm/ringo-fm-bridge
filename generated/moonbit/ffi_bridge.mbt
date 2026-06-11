@@ -289,6 +289,15 @@ extern "c" fn FMGeneratedContentGetPropertyValue(
 ) -> Bytes = "FMGeneratedContentGetPropertyValue"
 
 ///|
+#borrow(propertyName)
+extern "c" fn FMGeneratedContentGetPropertyValueAsDouble(
+  content : UInt,
+  propertyName : Bytes,
+  outValue : UInt,
+  outErrorCode : UInt
+) -> Bool = "FMGeneratedContentGetPropertyValueAsDouble"
+
+///|
 extern "c" fn FMGeneratedContentIsComplete(
   content : UInt
 ) -> Bool = "FMGeneratedContentIsComplete"

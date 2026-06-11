@@ -1320,6 +1320,31 @@ public func FMGeneratedContentIsComplete(content: FMGeneratedContentRef) -> Bool
   return wrapper.content.isComplete
 }
 
+/// Returns a heap-allocated JSON array string of the top-level property names present
+/// in the generated content, or NULL if the content cannot be serialized.
+///
+/// - Parameters:
+///   - content: The generated content.
+///
+/// - Returns: A JSON array string such as `["name","score"]`, or NULL on error.
+///
+/// - Important: The returned string is allocated with malloc and MUST be freed by calling
+///              FMFreeString() when no longer needed to prevent memory leaks.
+@_cdecl("FMGeneratedContentGetPropertyNames")
+public func FMGeneratedContentGetPropertyNames(
+  content: FMGeneratedContentRef
+) -> UnsafeMutablePointer<CChar>? {
+  let wrapper = Unmanaged<GeneratedContentWrapper>.fromOpaque(content).takeUnretainedValue()
+  let json = wrapper.content.jsonString
+  guard let data = json.data(using: .utf8),
+        let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        let keysData = try? JSONSerialization.data(withJSONObject: Array(dict.keys).sorted()),
+        let keysString = String(data: keysData, encoding: .utf8) else {
+    return nil
+  }
+  return keysString.withCString { UnsafeMutablePointer(strdup($0)) }
+}
+
 /// Returns whether the generated content has a top-level property with the given name.
 ///
 /// Unlike FMGeneratedContentGetPropertyValue, this function never allocates an error

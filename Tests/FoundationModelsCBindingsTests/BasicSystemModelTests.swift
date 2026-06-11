@@ -231,6 +231,27 @@ import Synchronization
     print("Generated \(uniqueCount) unique IDs out of \(numberOfCalls) calls")
   }
 
+  @Test func testGeneratedContentGetPropertyNames() throws {
+    let json = "{\"score\":99,\"name\":\"Alice\"}"
+    var errCode: Int32 = 0
+    var errDesc: UnsafePointer<CChar>? = nil
+    let content = FMGeneratedContentCreateFromJSON(json, &errCode, &errDesc)
+    #expect(errCode == 0)
+    let contentRef = try #require(content)
+    defer { FMRelease(contentRef) }
+
+    let namesPtr = FMGeneratedContentGetPropertyNames(contentRef)
+    let namesRef = try #require(namesPtr)
+    defer { FMFreeString(namesPtr) }
+
+    let namesJSON = String(cString: namesRef)
+    // Returned value must be a JSON array containing both property names.
+    #expect(namesJSON.hasPrefix("["))
+    #expect(namesJSON.hasSuffix("]"))
+    #expect(namesJSON.contains("\"name\""))
+    #expect(namesJSON.contains("\"score\""))
+  }
+
   @Test func testGeneratedContentHasProperty() throws {
     let json = "{\"greeting\":\"hello\",\"count\":42}"
     var errCode: Int32 = 0

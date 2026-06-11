@@ -296,6 +296,11 @@ extern "c" fn FMGeneratedContentHasProperty(
 ) -> Bool = "FMGeneratedContentHasProperty"
 
 ///|
+extern "c" fn FMGeneratedContentGetPropertyNames(
+  content : UInt
+) -> Bytes = "FMGeneratedContentGetPropertyNames"
+
+///|
 #borrow(optionsJSON)
 extern "c" fn FMLanguageModelSessionRespondWithSchema(
   session : UInt,

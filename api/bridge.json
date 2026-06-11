@@ -506,6 +506,20 @@
       ]
     },
     {
+      "section": "GeneratedContent",
+      "name": "FMGeneratedContentGetPropertyNames",
+      "stability": "stable",
+      "returns": {
+        "type": "char",
+        "pointer": true,
+        "nullable": true,
+        "ownership": "string"
+      },
+      "params": [
+        { "name": "content", "type": "FMGeneratedContentRef", "nullable": false }
+      ]
+    },
+    {
       "section": "Structured generation session functions",
       "name": "FMLanguageModelSessionRespondWithSchema",
       "stability": "stable",

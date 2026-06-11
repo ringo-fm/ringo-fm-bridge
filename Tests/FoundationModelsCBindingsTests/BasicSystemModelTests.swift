@@ -234,7 +234,7 @@ import Synchronization
   @Test func testGeneratedContentGetPropertyValueAsBool() throws {
     let json = "{\"active\":true,\"disabled\":false,\"score\":42}"
     var errCode: Int32 = 0
-    var errDesc: UnsafePointer<CChar>? = nil
+    var errDesc: UnsafeMutablePointer<CChar>? = nil
     let content = FMGeneratedContentCreateFromJSON(json, &errCode, &errDesc)
     #expect(errCode == 0)
     let contentRef = try #require(content)

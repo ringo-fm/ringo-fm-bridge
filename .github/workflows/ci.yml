@@ -9,7 +9,7 @@ jobs:
     # FoundationModels requires the macOS 26 SDK (Xcode 26 / Swift 6.2+).
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Select latest Xcode 26
         run: |
           sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"

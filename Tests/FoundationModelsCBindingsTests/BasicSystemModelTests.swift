@@ -413,4 +413,53 @@ import Synchronization
     #expect(!FMGeneratedContentHasProperty(contentRef, "nonexistent"))
     #expect(!FMGeneratedContentHasProperty(contentRef, ""))
   }
+
+  @Test func testLogFeedbackAttachment() throws {
+    let session = FMLanguageModelSessionCreateDefault()
+    defer { FMRelease(session) }
+
+    var length = 0
+    var errCode: Int32 = 0
+    var errDesc: UnsafeMutablePointer<CChar>? = nil
+    let issuesJSON = """
+    [{"category":"incorrect","explanation":"Expected a shorter answer."}]
+    """
+    let attachment = FMLanguageModelSessionLogFeedbackAttachment(
+      session,
+      FMFeedbackSentimentNegative,
+      issuesJSON,
+      "A shorter desired response.",
+      &length,
+      &errCode,
+      &errDesc
+    )
+    let attachmentPtr = try #require(attachment)
+    defer { FMFreeString(attachmentPtr) }
+    #expect(errCode == 0)
+    #expect(errDesc == nil)
+    #expect(length > 0)
+  }
+
+  @Test func testLogFeedbackAttachmentRejectsUnknownIssueCategory() throws {
+    let session = FMLanguageModelSessionCreateDefault()
+    defer { FMRelease(session) }
+
+    var length = 0
+    var errCode: Int32 = 0
+    var errDesc: UnsafeMutablePointer<CChar>? = nil
+    let attachment = FMLanguageModelSessionLogFeedbackAttachment(
+      session,
+      FMFeedbackSentimentNeutral,
+      "[{\"category\":\"notARealCategory\"}]",
+      nil,
+      &length,
+      &errCode,
+      &errDesc
+    )
+    defer { FMFreeString(errDesc) }
+    #expect(attachment == nil)
+    #expect(length == 0)
+    #expect(errCode != 0)
+    #expect(errDesc != nil)
+  }
 }

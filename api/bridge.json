@@ -90,6 +90,16 @@
       ]
     },
     {
+      "name": "FMFeedbackSentiment",
+      "stability": "stable",
+      "values": [
+        { "name": "FMFeedbackSentimentNone", "value": 0 },
+        { "name": "FMFeedbackSentimentPositive", "value": 1 },
+        { "name": "FMFeedbackSentimentNegative", "value": 2 },
+        { "name": "FMFeedbackSentimentNeutral", "value": 3 }
+      ]
+    },
+    {
       "name": "FMComposedPromptAddImageError",
       "stability": "stable",
       "values": [
@@ -333,6 +343,21 @@
       "returns": { "type": "int" },
       "params": [
         { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false }
+      ]
+    },
+    {
+      "section": "Feedback functions",
+      "name": "FMLanguageModelSessionLogFeedbackAttachment",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "sentiment", "type": "FMFeedbackSentiment" },
+        { "name": "issuesJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "desiredResponseText", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "outLength", "type": "size_t", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
       ]
     },
     {

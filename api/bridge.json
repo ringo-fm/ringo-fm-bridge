@@ -361,6 +361,21 @@
       ]
     },
     {
+      "section": "Feedback functions",
+      "name": "FMLanguageModelSessionLogFeedbackAttachmentWithDesiredResponseContent",
+      "stability": "stable",
+      "returns": { "type": "char", "pointer": true, "nullable": true, "ownership": "string" },
+      "params": [
+        { "name": "session", "type": "FMLanguageModelSessionRef", "nullable": false },
+        { "name": "sentiment", "type": "FMFeedbackSentiment" },
+        { "name": "issuesJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "desiredResponseContentJSON", "type": "char", "pointer": true, "nullable": true, "const": true },
+        { "name": "outLength", "type": "size_t", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorCode", "type": "int", "pointer": true, "nullable": true, "direction": "out" },
+        { "name": "outErrorDescription", "type": "char", "pointer": true, "pointerDepth": 2, "nullable": true, "direction": "out" }
+      ]
+    },
+    {
       "section": "GenerationSchema functions",
       "name": "FMGenerationSchemaCreate",
       "stability": "stable",

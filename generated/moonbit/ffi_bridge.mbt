@@ -454,6 +454,27 @@ extern "c" fn fm_language_model_session_log_feedback_attachment(
 ) -> Bytes = "FMLanguageModelSessionLogFeedbackAttachment"
 
 ///|
+/// Feedback functions: FMLanguageModelSessionLogFeedbackAttachmentWithDesiredResponseContent.
+/// stability: stable
+/// returns: ownership: string, nullable: true, pointer: true
+/// param session: nullable: false
+/// param issuesJSON: nullable: true, const: true, pointer: true
+/// param desiredResponseContentJSON: nullable: true, const: true, pointer: true
+/// param outLength: direction: out, nullable: true, pointer: true
+/// param outErrorCode: direction: out, nullable: true, pointer: true
+/// param outErrorDescription: direction: out, nullable: true, pointerDepth: 2
+#borrow(session, issues_json, desired_response_content_json, out_error_description)
+extern "c" fn fm_language_model_session_log_feedback_attachment_with_desired_response_content(
+  session : FMLanguageModelSessionRef,
+  sentiment : FMFeedbackSentiment,
+  issues_json : Bytes,
+  desired_response_content_json : Bytes,
+  out_length : UInt,
+  out_error_code : UInt,
+  out_error_description : Bytes
+) -> Bytes = "FMLanguageModelSessionLogFeedbackAttachmentWithDesiredResponseContent"
+
+///|
 /// GenerationSchema functions: FMGenerationSchemaCreate.
 /// stability: stable
 /// returns: ownership: owned, nullable: false

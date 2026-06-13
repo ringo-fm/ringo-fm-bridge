@@ -45,7 +45,55 @@ let package = Package(
     .testTarget(
       name: "FoundationModelsCBindingsTests",
       dependencies: ["FoundationModelsCBindings"]
-    )
+    ),
+    .executableTarget(
+      name: "FuzzGeneratedContentFromJSON",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzGeneratedContentFromJSON",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzTranscriptFromJSON",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzTranscriptFromJSON",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzComposedPromptAddText",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzComposedPromptAddText",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzSchemaPropertyCreate",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzSchemaPropertyCreate",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzFeedbackIssuesJSON",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzFeedbackIssuesJSON",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzResourceLifecycle",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzResourceLifecycle",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
   ],
   cLanguageStandard: .c99
 )

@@ -94,6 +94,22 @@ let package = Package(
         .headerSearchPath("../../FoundationModelsCBindings/include")
       ]
     ),
+    .executableTarget(
+      name: "FuzzSchemaGuides",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzSchemaGuides",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
+    .executableTarget(
+      name: "FuzzPromptAttachments",
+      dependencies: ["FoundationModelsCBindings"],
+      path: "Sources/FuzzTargets/FuzzPromptAttachments",
+      cSettings: [
+        .headerSearchPath("../../FoundationModelsCBindings/include")
+      ]
+    ),
   ],
   cLanguageStandard: .c99
 )

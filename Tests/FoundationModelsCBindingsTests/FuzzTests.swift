@@ -137,6 +137,121 @@ import FoundationModelsCDeclarations
     FMRelease(prop)
   }
 
+  @Test(arguments: [
+    ("", "", "String"),
+    ("field", "desc", "Array<String>"),
+    ("日本語", "説明", "Double"),
+    ("with space", "line1\nline2", "Bool"),
+  ])
+  func schemaWithAllGuideFamilies(_ name: String, _ desc: String, _ typeName: String) {
+    let schema = FMGenerationSchemaCreate("GuideFuzzSchema", nil)
+    defer { FMRelease(schema) }
+
+    let prop = FMGenerationSchemaPropertyCreate(name, desc, typeName, false)
+    let choiceStrings: [String] = ["", "alpha", "日本語"]
+    let allocatedChoices = choiceStrings.map { strdup($0)! }
+    var choices = allocatedChoices.map { Optional(UnsafePointer<CChar>($0)) }
+    choices.withUnsafeMutableBufferPointer { buffer in
+      FMGenerationSchemaPropertyAddAnyOfGuide(prop, buffer.baseAddress!, Int32(buffer.count), false)
+    }
+    for choice in allocatedChoices {
+      free(choice)
+    }
+    FMGenerationSchemaPropertyAddCountGuide(prop, 0, false)
+    FMGenerationSchemaPropertyAddMinItemsGuide(prop, -1)
+    FMGenerationSchemaPropertyAddMaxItemsGuide(prop, 3)
+    FMGenerationSchemaPropertyAddMinimumGuide(prop, -Double.greatestFiniteMagnitude, false)
+    FMGenerationSchemaPropertyAddMaximumGuide(prop, Double.greatestFiniteMagnitude, false)
+    FMGenerationSchemaPropertyAddRangeGuide(prop, -1, 1, false)
+    FMGenerationSchemaPropertyAddRegex(prop, ".*", false)
+    FMGenerationSchemaAddProperty(schema, prop)
+    FMRelease(prop)
+
+    let referenced = FMGenerationSchemaCreate("Referenced", "nested")
+    FMGenerationSchemaAddReferenceSchema(schema, referenced)
+    FMRelease(referenced)
+
+    var code: Int32 = 0
+    var errorDesc: UnsafeMutablePointer<CChar>?
+    if let json = FMGenerationSchemaGetJSONString(schema, &code, &errorDesc) {
+      FMFreeString(json)
+    }
+    if let errorDesc { FMFreeString(errorDesc) }
+  }
+
+  @Test(arguments: [
+    ("", ""),
+    ("/tmp/no-such-image.png", ""),
+    ("/tmp/no-such image.png", "label"),
+    ("日本語.png", "識別子"),
+  ])
+  func promptAttachmentEdges(_ path: String, _ label: String) {
+    let prompt = FMComposedPromptInitialize()
+    defer { FMRelease(prompt) }
+
+    var error = FMComposedPromptAddImageErrorNone
+    _ = FMComposedPromptAddImage(prompt, path, &error)
+    _ = FMComposedPromptAddIdentifiedImage(prompt, path, label, &error)
+    _ = FMComposedPromptAddAttachment(prompt, path, label.isEmpty ? nil : label, &error)
+    if let content = FMComposedPromptGetTextContent(prompt) {
+      FMFreeString(content)
+    }
+  }
+
+  @Test(arguments: [
+    "",
+    "{}",
+    "{\"temperature\":0}",
+    "{\"temperature\":-1,\"maximum_response_tokens\":0}",
+    "{\"sampling\":{\"mode\":\"random\",\"top_k\":\"0\",\"top_p\":\"2\",\"seed\":\"-1\"}}",
+    "not json",
+  ])
+  func respondOptionJSONIsAcceptedByAsyncEntryPoint(_ optionsJSON: String) {
+    let session = FMLanguageModelSessionCreateDefault()
+    let prompt = FMComposedPromptInitialize()
+    FMComposedPromptAddText(prompt, "fuzz options")
+
+    let task = FMLanguageModelSessionRespond(
+      session,
+      prompt,
+      optionsJSON.isEmpty ? nil : optionsJSON,
+      nil,
+      { _, content, _, _ in
+        _ = content
+      }
+    )
+    FMTaskCancel(task)
+    FMRelease(task)
+    FMRelease(session)
+  }
+
+  @Test(arguments: [
+    "{\"a\":1}",
+    "{}",
+    "",
+    "not json",
+  ])
+  func feedbackDesiredContentEdges(_ desiredContentJSON: String) {
+    let session = FMLanguageModelSessionCreateDefault()
+    defer { FMRelease(session) }
+
+    var length = 0
+    var code: Int32 = 0
+    var desc: UnsafeMutablePointer<CChar>?
+    if let result = FMLanguageModelSessionLogFeedbackAttachmentWithDesiredResponseContent(
+      session,
+      FMFeedbackSentimentNeutral,
+      "[]",
+      desiredContentJSON,
+      &length,
+      &code,
+      &desc
+    ) {
+      FMFreeString(result)
+    }
+    if let desc { FMFreeString(desc) }
+  }
+
   @Test func afterCloseGeneratedContent() {
     var code: Int32 = 0
     var desc: UnsafeMutablePointer<CChar>?
